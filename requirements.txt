@@ -1,8 +1,9 @@
 streamlit
-scikit-learn
 pandas
 numpy
-matplotlib
 seaborn
-gplearn
+matplotlib
+scikit-learn
 tpot
+gplearn
+stopit
