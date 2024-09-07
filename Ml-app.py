@@ -176,4 +176,32 @@ if df is not None:
     test_size = st.sidebar.slider("Test size", 0.1, 0.5, 0.3)
     k_folds = st.sidebar.slider("Number of Folds for Cross-Validation", 2, 10, 5)
 
-    X_train, X_test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+
+    if "TPOT" in model_name or "Symbolic" in model_name:
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        if "TPOT" in model_name:
+            st.write("### Best Pipeline:", model.fitted_pipeline_)
+    else:
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+
+    # Display metrics based on model type
+    if "Classifier" in model_name:
+        st.write("### Accuracy on Test Set:", accuracy_score(y_test, y_pred))
+        cv_scores = cross_val_score(model, X, y, cv=k_folds)
+        st.write("### Cross-Validation Scores:", cv_scores)
+        st.write("### Mean CV Score:", np.mean(cv_scores))
+    elif "Regressor" in model_name or model_name == "Linear Regression":
+        st.write("### Mean Squared Error:", mean_squared_error(y_test, y_pred))
+        st.write("### R² Score:", r2_score(y_test, y_pred))
+        cv_scores = cross_val_score(model, X, y, cv=k_folds, scoring='neg_mean_squared_error')
+        st.write("### Cross-Validation MSE Scores:", -cv_scores)
+        st.write("### Mean CV MSE:", -np.mean(cv_scores))
+    elif model_name == "KMeans":
+        st.write("### Cluster Centers:", model.cluster_centers_)
+        st.write("### Labels:", model.labels_)
+
+else:
+    st.write("No dataset loaded. Please upload or select a dataset.")
